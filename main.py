@@ -66,10 +66,17 @@ def one_author(author_id: int):
     else:
         return {"Message": "Author doesn't exist in the library"}
 
+# @app.post("/author")
+# def add_author(author: Author):
+#     fake_db_authors[author.id] = author
+#     return {"Message": "Author was saved to DB"}
+
 @app.post("/author")
 def add_author(author: Author):
-    fake_db_authors[author.id] = author
-    return {"Message": "Author was saved to DB"}
+    if author.id not in fake_db_authors:
+        fake_db_authors[author.id] = author
+    else:
+        return {"Message": f"Author with id {author.id} has already added to the library"}
 
 @app.delete("/author/{author_id}")
 def del_author_by_id(author_id: int):
