@@ -13,6 +13,19 @@ class Book(BaseModel):
     rating: float
     description: str
 
+
+class PatchBook(BaseModel):
+    author_name: str | None
+    book_name: str | None
+    rating: float | None
+    description: str | None
+
+
+@app.get("/")
+def hello_page():
+    return {"message": "Hello from Fast API"}
+
+
 @app.get("/book")
 def all_books():
     all_books = [fake_db[key] for key in fake_db.keys()]
@@ -30,8 +43,11 @@ def one_book(book_id: int):
 
 @app.post("/book")
 def add_book(book: Book):
-    fake_db[book.id] = book
-    return {"Message": "Book was saved to DB"}
+    if book.id in fake_db:
+        return {"Message": "Book has already saved to DB, add another book"}
+    else:
+        fake_db[book.id] = book
+        return {"Message": "Book was saved to DB"}
 
 
 
@@ -43,6 +59,27 @@ def del_book_by_id(book_id: int):
     else:
         return {"Message": "Book doesn't exist in the library"}
 
+
+@app.put("/book/{book_id}")
+def put_book_by_id(book: Book, book_id: int):
+    if book_id not in fake_db:
+        return {"Message": "Book doesn't exist in the library"}
+    fake_db[book_id] = book
+    return {"Message": f"Book with id {book_id} was changed"}
+
+
+@app.patch("/book/{book_id}")
+def patch_book_by_id(patch_book: PatchBook, book_id: int):
+    if book_id not in fake_db:
+        return {"Message": "Book doesn't exist in the library"}
+    fake_db[book_id].author_name = patch_book.author_name if patch_book.author_name else fake_db[book_id].author_name
+    fake_db[book_id].book_name = patch_book.book_name if patch_book.book_name else fake_db[book_id].book_name
+    fake_db[book_id].rating = patch_book.rating if patch_book.rating else fake_db[book_id].rating
+    fake_db[book_id].description = patch_book.description if patch_book.description else fake_db[book_id].description
+    return {"Message": f"Book with id {book_id} was changed"}
+
+# Автор: id, name, surname, age, language, rating
+# Организовать методы GET_all, GET by id, POST, PUT, DELETE для авторов
 
 fake_db_authors = {}
 
