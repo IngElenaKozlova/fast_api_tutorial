@@ -1,8 +1,8 @@
 from sqlalchemy.orm import Session
 
 import models
-from sql_book import Book
-from sql_author import Author
+from sql_models.sql_book import Book
+from sql_models.sql_author import Author
 
 
 def get_book(db: Session, book_id: int):

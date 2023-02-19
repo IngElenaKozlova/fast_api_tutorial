@@ -5,8 +5,7 @@ from sqlalchemy.orm.session import Session
 import crud
 import models.book
 import models.author
-import sql_book
-import sql_author
+from sql_models import sql_author, sql_book
 from database import engine, SessionLocal
 
 app = FastAPI()
