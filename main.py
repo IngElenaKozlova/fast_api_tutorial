@@ -5,7 +5,6 @@ from sqlalchemy.orm.session import Session
 import crud
 import models.book
 import models.author
-from sql_models import sql_author, sql_book
 from database import engine, SessionLocal
 
 app = FastAPI()
@@ -13,9 +12,9 @@ app = FastAPI()
 # app.include_router(book.router)
 # app.include_router(author.router)
 
-sql_book.Base.metadata.create_all(bind=engine)
+models.book.Base.metadata.create_all(bind=engine)
 
-sql_author.Base.metadata.create_all(bind=engine)
+models.author.Base.metadata.create_all(bind=engine)
 
 
 def get_db():
