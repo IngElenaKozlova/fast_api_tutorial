@@ -15,7 +15,12 @@ class Author(BaseModel):
         orm_mode = True
 
 
+class PutAuthor(Author):
+    id: int
+
+
 class PatchAuthor(BaseModel):
+    id: int
     name: str | None
     surname: str | None
     age: int | None

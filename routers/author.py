@@ -1,66 +1,72 @@
 from fastapi import APIRouter
+from fastapi.param_functions import Depends
+from sqlalchemy.orm.session import Session
 
-from models.author import Author, PatchAuthor
+import crud
+import models.author
+from database import get_db
 
-router = APIRouter(
+author_router = APIRouter(
     prefix="/author",
     tags=["author"],
 )
 
-fake_db_authors = {}
+
+@author_router.post("/author")
+def create_author(author: models.author.Author, db: Session = Depends(get_db)):
+    return crud.create_author(db=db, author=author)
 
 
-@router.get("/")
-def all_authors():
-    all_authors = [fake_db_authors[key] for key in fake_db_authors.keys()]
+@author_router.get("/author/{author_id}")
+def get_author_by_id(author_id: int, db: Session = Depends(get_db)):
+    db_author = crud.get_author(db, author_id)
+    if not db_author:
+        return {"message": "Author with id doesnt exist in db"}
+    return db_author
+
+
+@author_router.get("/")
+def all_authors(db: Session = Depends(get_db)):
+    all_authors = crud.get_all_authors(db)
     return {"Authors": all_authors}
 
 
-@router.get("/{author_id}")
-def one_author(author_id: int):
-    if author_id in fake_db_authors:
-        return {"Author": fake_db_authors[author_id]}
+@author_router.delete("/{author_id}")
+def del_author_by_id(author_id: int, db: Session = Depends(get_db)):
+    db_author = crud.get_author(db, author_id)
+    if not db_author:
+        return {"message": f"Author with id {author_id} doesnt exist in db"}
     else:
-        return {"Message": "Author doesn't exist in the library"}
+        crud.delete_author(db, db_author)
+        return {"Message": f"Author with id {author_id} was deleted"}
 
 
-@router.post("/")
-def add_author(author: Author):
-    if author.id not in fake_db_authors:
-        fake_db_authors[author.id] = author
-    else:
-        return {"Message": f"Author with id {author.id} has already added to the library"}
+@author_router.put("/")
+def put_book_by_id(put_author: models.author.PutAuthor, db: Session = Depends(get_db)):
+    db_author = crud.get_author(db, put_author.id)
+    if not db_author:
+        return {"message": f"Book with id {put_author.id} doesnt exist in db"}
+    db_author.name = put_author.name
+    db_author.surname = put_author.surname
+    db_author.rating = put_author.rating
+    db_author.age = put_author.age
+    db_author.language = put_author.language
+
+    updated_author = crud.put_author(db, db_author)
+    return updated_author
 
 
-@router.delete("/{author_id}")
-def del_author_by_id(author_id: int):
-    if author_id in fake_db_authors:
-        del fake_db_authors[author_id]
-        return {"Message": "Author was successfully deleted"}
-    else:
-        return {"Message": "Author doesn't exist in the library"}
+@author_router.patch("/")
+def patch_author_by_id(patch_author: models.author.PatchAuthor, db: Session = Depends(get_db)):
+    db_author = crud.get_author(db, patch_author.id)
+    if not db_author:
+        return {"message": f"Book with id {patch_author.id} doesnt exist in db"}
 
+    db_author.name = patch_author.name if patch_author.name else db_author.name
+    db_author.surname = patch_author.surname if patch_author.surname else db_author.surname
+    db_author.age = patch_author.age if patch_author.age else db_author.age
+    db_author.language = patch_author.language if patch_author.language else db_author.language
+    db_author.rating = patch_author.rating if patch_author.rating else db_author.rating
 
-@router.put("/{author_id}")
-def put_author_by_id(author: Author, author_id: int):
-    if author_id not in fake_db_authors:
-        return {"Message": "Author doesn't exist in the library"}
-    fake_db_authors[author_id] = author
-    return {"Message": f"Author with id {author_id} was changed"}
-
-
-@router.patch("/{author_id}")
-def patch_author_by_id(patch_author: PatchAuthor, author_id: int):
-    if author_id not in fake_db_authors:
-        return {"Message": "Book doesn't exist in the library"}
-    fake_db_authors[author_id].name_author = patch_author.name_author if patch_author.name_author else fake_db_authors[
-        author_id].name_author
-    fake_db_authors[author_id].surname_author = patch_author.surname_author if patch_author.surname_author else \
-        fake_db_authors[author_id].surname_author
-    fake_db_authors[author_id].age_author = patch_author.age_author if patch_author.age_author else fake_db_authors[
-        author_id].age_author
-    fake_db_authors[author_id].language_author = patch_author.language_author if patch_author.language_author else \
-        fake_db_authors[author_id].language_author
-    fake_db_authors[author_id].rating_author = patch_author.rating_author if patch_author.rating_author else \
-        fake_db_authors[author_id].rating_author
-    return {"Message": f"Author with id {author_id} was changed"}
+    updated_author = crud.put_author(db, db_author)
+    return updated_author

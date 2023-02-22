@@ -14,6 +14,10 @@ class Book(BaseModel):
         orm_mode = True
 
 
+class PutBook(Book):
+    id: int
+
+
 class PatchBook(BaseModel):
     author_name: str | None
     book_name: str | None

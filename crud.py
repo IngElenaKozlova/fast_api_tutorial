@@ -5,7 +5,7 @@ from models.book import Book, BookDB
 from models.author import Author, AuthorDB
 
 
-def get_book(db: Session, book_id: int):
+def get_book(db: Session, book_id: int) -> BookDB:
     return db.query(BookDB).filter(BookDB.id == book_id).first()
 
 
@@ -22,7 +22,18 @@ def create_book(db: Session, book: models.book.Book):
     return db_book
 
 
-def get_author(db: Session, author_id: int):
+def put_book(db: Session, db_book: models.book.BookDB):
+    db.commit()
+    db.refresh(db_book)
+    return db_book
+
+
+def delete_book(db: Session, db_book: models.book.BookDB) -> None:
+    db.delete(db_book)
+    db.commit()
+
+
+def get_author(db: Session, author_id: int) -> AuthorDB:
     return db.query(AuthorDB).filter(AuthorDB.id == author_id).first()
 
 
@@ -30,11 +41,22 @@ def get_all_authors(db: Session, skip: int = 0, limit: int = 100):
     return db.query(AuthorDB).offset(skip).limit(limit).all()
 
 
-def create_author(db: Session, author: models.author.Author):
+def create_author(db: Session, author: models.author.Author) -> models.author.AuthorDB:
     db_author = AuthorDB(name=author.name, surname=author.surname,
                          age=author.age, language=author.language,
                          rating=author.rating)
     db.add(db_author)
+    db.commit()
+    db.refresh(db_author)
+    return db_author
+
+
+def delete_author(db: Session, db_author: models.author.AuthorDB) -> None:
+    db.delete(db_author)
+    db.commit()
+
+
+def put_author(db: Session, db_author: models.author.AuthorDB) -> models.author.AuthorDB:
     db.commit()
     db.refresh(db_author)
     return db_author
