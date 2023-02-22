@@ -5,7 +5,6 @@ from database import Base
 
 
 class Book(BaseModel):
-    id: int
     author_name: str
     book_name: str
     rating: float

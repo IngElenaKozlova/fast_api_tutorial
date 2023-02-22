@@ -5,31 +5,30 @@ from database import Base
 
 
 class Author(BaseModel):
-    id: int
-    name_author: str
-    surname_author: str
-    age_author: int
-    language_author: str
-    rating_author: float
+    name: str
+    surname: str
+    age: int
+    language: str
+    rating: float
 
     class Config:
         orm_mode = True
 
 
 class PatchAuthor(BaseModel):
-    name_author: str | None
-    surname_author: str | None
-    age_author: int | None
-    language_author: str | None
-    rating_author: float | None
+    name: str | None
+    surname: str | None
+    age: int | None
+    language: str | None
+    rating: float | None
 
 
 class AuthorDB(Base):
     __tablename__ = "authors"
 
     id = Column(Integer, primary_key=True)
-    name_author = Column(String)
-    surname_author = Column(String)
-    age_author = Column(Integer)
-    language_author = Column(String)
+    name = Column(String)
+    surname = Column(String)
+    age = Column(Integer)
+    language = Column(String)
     rating = Column(Float, default=0.0)
