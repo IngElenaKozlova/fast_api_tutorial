@@ -1,61 +1,66 @@
 from fastapi import APIRouter
+from models.book import Book, PutBook
+from fastapi.param_functions import Depends
+from sqlalchemy.orm.session import Session
 
-from models.book import Book, PatchBook
+import crud
+import models.author
+from database import get_db
 
-router = APIRouter(
+book_router = APIRouter(
     prefix="/book",
     tags=["book"],
 )
 
-fake_db = {}
+
+@book_router.get("/book/{book_id}")
+def get_book_by_id(book_id: int, db: Session = Depends(get_db)):
+    db_book = crud.get_book(db, book_id)
+    if not db_book:
+        return {"message": "Book with id doesnt exist in db"}
+    return db_book
 
 
-@router.get("/")
-def all_books():
-    all_books = [fake_db[key] for key in fake_db.keys()]
+@book_router.post("/book")
+def create_book(book: models.book.Book, db: Session = Depends(get_db)):
+    return crud.create_book(db=db, book=book)
+
+
+@book_router.get("/")
+def all_books(db: Session = Depends(get_db)):
+    all_books = crud.get_all_books(db)
     return {"Books": all_books}
 
 
-@router.get("/{book_id}")
-def one_book(book_id: int):
-    if book_id in fake_db:
-        return {"Book": fake_db[book_id]}
+@book_router.delete("/{book_id}")
+def del_book_by_id(book_id: int, db: Session = Depends(get_db)):
+    db_book = crud.get_book(db, book_id)
+    if not db_book:
+        return {"message": f"Book with id {book_id} doesnt exist in db"}
     else:
-        return {"Message": "Book doesn't exist in the library"}
+        crud.delete_book(db, db_book)
+        return {"Message": f"book with id {book_id} was deleted"}
 
 
-@router.post("/")
-def add_book(book: Book):
-    if book.id in fake_db:
-        return {"Message": "Book has already saved to DB, add another book"}
-    else:
-        fake_db[book.id] = book
-        return {"Message": "Book was saved to DB"}
-
-
-@router.delete("/{book_id}")
-def del_book_by_id(book_id: int):
-    if book_id in fake_db:
-        del fake_db[book_id]
-        return {"Message": "Book was successfully deleted"}
-    else:
-        return {"Message": "Book doesn't exist in the library"}
-
-
-@router.put("/{book_id}")
-def put_book_by_id(book: Book, book_id: int):
-    if book_id not in fake_db:
-        return {"Message": "Book doesn't exist in the library"}
-    fake_db[book_id] = book
-    return {"Message": f"Book with id {book_id} was changed"}
-
-
-@router.patch("/{book_id}")
-def patch_book_by_id(patch_book: PatchBook, book_id: int):
-    if book_id not in fake_db:
-        return {"Message": "Book doesn't exist in the library"}
-    fake_db[book_id].author_name = patch_book.author_name if patch_book.author_name else fake_db[book_id].author_name
-    fake_db[book_id].book_name = patch_book.book_name if patch_book.book_name else fake_db[book_id].book_name
-    fake_db[book_id].rating = patch_book.rating if patch_book.rating else fake_db[book_id].rating
-    fake_db[book_id].description = patch_book.description if patch_book.description else fake_db[book_id].description
-    return {"Message": f"Book with id {book_id} was changed"}
+@book_router.put("/")
+def put_book_by_id(put_book: PutBook, db: Session = Depends(get_db)):
+    db_book = crud.get_book(db, put_book.id)
+    if not db_book:
+        return {"message": f"Book with id {put_book.id} doesnt exist in db"}
+    db_book.book_name = put_book.book_name
+    db_book.author_name = put_book.author_name
+    db_book.rating = put_book.rating
+    db_book.description = put_book.description
+    updated_book = crud.put_book(db, db_book)
+    return updated_book
+#
+#
+# @router.patch("/{book_id}")
+# def patch_book_by_id(patch_book: PatchBook, book_id: int):
+#     if book_id not in fake_db:
+#         return {"Message": "Book doesn't exist in the library"}
+#     fake_db[book_id].author_name = patch_book.author_name if patch_book.author_name else fake_db[book_id].author_name
+#     fake_db[book_id].book_name = patch_book.book_name if patch_book.book_name else fake_db[book_id].book_name
+#     fake_db[book_id].rating = patch_book.rating if patch_book.rating else fake_db[book_id].rating
+#     fake_db[book_id].description = patch_book.description if patch_book.description else fake_db[book_id].description
+#     return {"Message": f"Book with id {book_id} was changed"}
