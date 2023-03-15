@@ -1,21 +1,62 @@
 from sqlalchemy.orm import Session
 
 import models
-from sql_book import Book
+from models.book import Book, BookDB
+from models.author import Author, AuthorDB
 
 
-def get_book(db: Session, book_id: int):
-    return db.query(Book).filter(Book.id == book_id).first()
+def get_book(db: Session, book_id: int) -> BookDB:
+    return db.query(BookDB).filter(BookDB.id == book_id).first()
 
 
 def get_all_books(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(Book).offset(skip).limit(limit).all()
+    return db.query(BookDB).offset(skip).limit(limit).all()
 
 
 def create_book(db: Session, book: models.book.Book):
-    db_book = Book(author_name=book.author_name, book_name=book.book_name,
-                   rating=book.rating, description=book.description)
+    db_book = BookDB(author_name=book.author_name, book_name=book.book_name,
+                     rating=book.rating, description=book.description)
     db.add(db_book)
     db.commit()
     db.refresh(db_book)
     return db_book
+
+
+def put_book(db: Session, db_book: models.book.BookDB):
+    db.commit()
+    db.refresh(db_book)
+    return db_book
+
+
+def delete_book(db: Session, db_book: models.book.BookDB) -> None:
+    db.delete(db_book)
+    db.commit()
+
+
+def get_author(db: Session, author_id: int) -> AuthorDB:
+    return db.query(AuthorDB).filter(AuthorDB.id == author_id).first()
+
+
+def get_all_authors(db: Session, skip: int = 0, limit: int = 100):
+    return db.query(AuthorDB).offset(skip).limit(limit).all()
+
+
+def create_author(db: Session, author: models.author.Author) -> models.author.AuthorDB:
+    db_author = AuthorDB(name=author.name, surname=author.surname,
+                         age=author.age, language=author.language,
+                         rating=author.rating)
+    db.add(db_author)
+    db.commit()
+    db.refresh(db_author)
+    return db_author
+
+
+def delete_author(db: Session, db_author: models.author.AuthorDB) -> None:
+    db.delete(db_author)
+    db.commit()
+
+
+def put_author(db: Session, db_author: models.author.AuthorDB) -> models.author.AuthorDB:
+    db.commit()
+    db.refresh(db_author)
+    return db_author

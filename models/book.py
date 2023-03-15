@@ -1,8 +1,10 @@
 from pydantic import BaseModel
+from sqlalchemy import Column, Integer, String, Float
+
+from database import Base
 
 
 class Book(BaseModel):
-    id: int
     author_name: str
     book_name: str
     rating: float
@@ -12,6 +14,10 @@ class Book(BaseModel):
         orm_mode = True
 
 
+class PutBook(Book):
+    id: int
+
+
 class PatchBook(BaseModel):
     author_name: str | None
     book_name: str | None
@@ -19,9 +25,11 @@ class PatchBook(BaseModel):
     description: str | None
 
 
+class BookDB(Base):
+    __tablename__ = "books"
 
-#CRUD
-# C ... create
-# R ... read
-# U ... Update
-# D delete
+    id = Column(Integer, primary_key=True)
+    author_name = Column(String, unique=True)
+    book_name = Column(String)
+    rating = Column(Float, default=0.0)
+    description = Column(String)
