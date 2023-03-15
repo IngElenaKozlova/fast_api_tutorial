@@ -13,7 +13,7 @@ book_router = APIRouter(
 )
 
 
-@book_router.get("/book/{book_id}")
+@book_router.get("/{book_id}")
 def get_book_by_id(book_id: int, db: Session = Depends(get_db)):
     db_book = crud.get_book(db, book_id)
     if not db_book:
@@ -21,7 +21,7 @@ def get_book_by_id(book_id: int, db: Session = Depends(get_db)):
     return db_book
 
 
-@book_router.post("/book")
+@book_router.post("/")
 def create_book(book: models.book.Book, db: Session = Depends(get_db)):
     return crud.create_book(db=db, book=book)
 

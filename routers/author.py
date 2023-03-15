@@ -12,12 +12,12 @@ author_router = APIRouter(
 )
 
 
-@author_router.post("/author")
+@author_router.post("/")
 def create_author(author: models.author.Author, db: Session = Depends(get_db)):
     return crud.create_author(db=db, author=author)
 
 
-@author_router.get("/author/{author_id}")
+@author_router.get("/{author_id}")
 def get_author_by_id(author_id: int, db: Session = Depends(get_db)):
     db_author = crud.get_author(db, author_id)
     if not db_author:
