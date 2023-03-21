@@ -42,7 +42,7 @@ def del_author_by_id(author_id: int, db: Session = Depends(get_db)):
 
 
 @author_router.put("/")
-def put_book_by_id(put_author: models.author.PutAuthor, db: Session = Depends(get_db)):
+def put_author_by_id(put_author: models.author.PutAuthor, db: Session = Depends(get_db)):
     db_author = crud.get_author(db, put_author.id)
     if not db_author:
         return {"message": f"Book with id {put_author.id} doesnt exist in db"}
