@@ -1,24 +1,45 @@
 from pydantic import BaseModel
-from sqlalchemy import Column, Integer, String, Float
-
+from sqlalchemy import Column, Integer, String, Float, ForeignKey
+from sqlalchemy.orm import relationship
 from database import Base
 
 
-class Book(BaseModel):
-    author_name: str
-    book_name: str
+class BaseAuthor(BaseModel):
+    id: int
+    age: int
+    name: str
+    surname: str
+    language: str
     rating: float
-    description: str
 
     class Config:
         orm_mode = True
 
 
-class PutBook(Book):
+class BaseBook(BaseModel):
+    book_name: str
+    rating: float
+    description: str
+
+
+class PostBook(BaseBook):
+    author_id: int
+
+
+class PostBookResponse(BaseBook):
+    id: int
+    author: BaseAuthor
+
+    class Config:
+        orm_mode = True
+
+
+class PutBook(PostBook):
     id: int
 
 
 class PatchBook(BaseModel):
+    id: int
     author_name: str | None
     book_name: str | None
     rating: float | None
@@ -29,7 +50,9 @@ class BookDB(Base):
     __tablename__ = "books"
 
     id = Column(Integer, primary_key=True)
-    author_name = Column(String, unique=True)
+    author_id = Column(Integer, ForeignKey('authors.id'))
     book_name = Column(String)
     rating = Column(Float, default=0.0)
     description = Column(String)
+
+    author = relationship("AuthorDB", back_populates="books")

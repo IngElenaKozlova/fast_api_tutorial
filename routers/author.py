@@ -12,12 +12,13 @@ author_router = APIRouter(
 )
 
 
-@author_router.post("/")
-def create_author(author: models.author.Author, db: Session = Depends(get_db)):
-    return crud.create_author(db=db, author=author)
+@author_router.get("/", response_model=list[models.author.AuthorGetResponse])
+def all_authors(db: Session = Depends(get_db)):
+    all_authors = crud.get_all_authors(db)
+    return all_authors
 
 
-@author_router.get("/{author_id}")
+@author_router.get("/{author_id}", response_model=models.author.AuthorGetResponse)
 def get_author_by_id(author_id: int, db: Session = Depends(get_db)):
     db_author = crud.get_author(db, author_id)
     if not db_author:
@@ -25,10 +26,9 @@ def get_author_by_id(author_id: int, db: Session = Depends(get_db)):
     return db_author
 
 
-@author_router.get("/")
-def all_authors(db: Session = Depends(get_db)):
-    all_authors = crud.get_all_authors(db)
-    return {"Authors": all_authors}
+@author_router.post("/", response_model=models.author.AuthorGetResponse)
+def create_author(author: models.author.BaseAuthor, db: Session = Depends(get_db)):
+    return crud.create_author(db=db, author=author)
 
 
 @author_router.delete("/{author_id}")
@@ -41,7 +41,7 @@ def del_author_by_id(author_id: int, db: Session = Depends(get_db)):
         return {"Message": f"Author with id {author_id} was deleted"}
 
 
-@author_router.put("/")
+@author_router.put("/", response_model=models.author.AuthorGetResponse)
 def put_book_by_id(put_author: models.author.PutAuthor, db: Session = Depends(get_db)):
     db_author = crud.get_author(db, put_author.id)
     if not db_author:
@@ -56,7 +56,7 @@ def put_book_by_id(put_author: models.author.PutAuthor, db: Session = Depends(ge
     return updated_author
 
 
-@author_router.patch("/")
+@author_router.patch("/", response_model=models.author.AuthorGetResponse)
 def patch_author_by_id(patch_author: models.author.PatchAuthor, db: Session = Depends(get_db)):
     db_author = crud.get_author(db, patch_author.id)
     if not db_author:
