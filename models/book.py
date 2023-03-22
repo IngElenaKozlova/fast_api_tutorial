@@ -19,6 +19,7 @@ class PutBook(Book):
 
 
 class PatchBook(BaseModel):
+    id: int
     author_name: str | None
     book_name: str | None
     rating: float | None

@@ -53,6 +53,21 @@ def put_book_by_id(put_book: PutBook, db: Session = Depends(get_db)):
     db_book.description = put_book.description
     updated_book = crud.put_book(db, db_book)
     return updated_book
+
+@book_router.patch("/")
+def patch_book_by_id(patch_book: models.book.PatchBook, db: Session = Depends(get_db)):
+    db_book = crud.get_book(db, patch_book.id)
+    if not db_book:
+        return {"message": f"Book with id {patch_book.id} doesnt exist in db"}
+
+    db_book.author_name = patch_book.author_name if patch_book.author_name else db_book.author_name
+    db_book.book_name = patch_book.book_name if patch_book.book_name else db_book.book_name
+    db_book.rating = patch_book.rating if patch_book.rating else db_book.rating
+    db_book.description = patch_book.description if patch_book.description else db_book.description
+
+    updated_book = crud.put_author(db, db_book)
+    return updated_book
+
 #
 #
 # @router.patch("/{book_id}")
