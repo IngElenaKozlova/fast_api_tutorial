@@ -20,6 +20,16 @@ class BaseAuthor(BaseModel):
     surname: str
     language: str
     rating: float
+    class Config:
+        schema_extra = {
+            "example": {
+                "age": 24,
+                "name": "Nikolas",
+                "surname": "Flamel",
+                "language": "Eng",
+                "rating": 9.8
+            }
+        }
 
 
 class AuthorGetResponse(BaseAuthor):
