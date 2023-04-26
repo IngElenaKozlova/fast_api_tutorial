@@ -65,14 +65,14 @@ def put_book_by_id(put_book: PutBook, db: Session = Depends(get_db)):
     return updated_book
 
 
-@book_router.patch("/", response_model=models.book.PatchBook, status_code=status.HTTP_200_OK)
+@book_router.patch("/", response_model=PostBookResponse, status_code=status.HTTP_200_OK)
 def patch_book_by_id(patch_book: models.book.PatchBook, db: Session = Depends(get_db)):
     db_book = crud.get_book(db, patch_book.id)
     if not db_book:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f"Book with id {patch_book.id} doesn't exist in db")
 
-    db_book.author_name = patch_book.author_name if patch_book.author_name else db_book.author_name
+    db_book.author_id = patch_book.author_id if patch_book.author_id else db_book.author_id
     db_book.book_name = patch_book.book_name if patch_book.book_name else db_book.book_name
     db_book.rating = patch_book.rating if patch_book.rating else db_book.rating
     db_book.description = patch_book.description if patch_book.description else db_book.description
