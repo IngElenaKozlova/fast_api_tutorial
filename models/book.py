@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from sqlalchemy import Column, Integer, String, Float, ForeignKey
 from sqlalchemy.orm import relationship
+
 from database import Base
 
 
@@ -20,7 +21,14 @@ class BaseBook(BaseModel):
     book_name: str
     rating: float
     description: str
-
+    class Config:
+        schema_extra = {
+            "example": {
+                "book_name": "Harry Potter and the Philosopher's Stone",
+                "rating": 10.0,
+                "description": "The best book ever"
+            }
+        }
 
 class PostBook(BaseBook):
     author_id: int

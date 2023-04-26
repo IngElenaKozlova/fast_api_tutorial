@@ -24,7 +24,6 @@ def get_author_by_id(author_id: int, db: Session = Depends(get_db)):
     if not db_author:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f"Author with id {author_id} doesnt exist in db")
-        # return {"message": "Author with id doesnt exist in db"}
     return db_author
 
 
@@ -33,11 +32,11 @@ def create_author(author: models.author.BaseAuthor, db: Session = Depends(get_db
     """
     Create an author record in db:
 
+    - **age**: each item must have an age
     - **name**: each item must have a name
-    - **description**: a long description
-    - **price**: required
-    - **tax**: if the item doesn't have tax, you can omit this
-    - **tags**: a set of unique tag strings for this item
+    - **surname**: each item must have a surname
+    - **language**: each item must have a language
+    - **rating**: each item must have a description
     """
     return crud.create_author(db=db, author=author)
 
