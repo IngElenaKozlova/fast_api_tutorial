@@ -1,8 +1,8 @@
 from sqlalchemy.orm import Session
 
 import models
-from models.book import Book, BookDB
-from models.author import Author, AuthorDB
+from models.book import BookDB
+from models.author import AuthorGetResponse, AuthorDB
 
 
 def get_book(db: Session, book_id: int) -> BookDB:
@@ -10,11 +10,12 @@ def get_book(db: Session, book_id: int) -> BookDB:
 
 
 def get_all_books(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(BookDB).offset(skip).limit(limit).all()
+    r = db.query(BookDB).offset(skip).limit(limit).all()
+    return r
 
 
-def create_book(db: Session, book: models.book.Book):
-    db_book = BookDB(author_name=book.author_name, book_name=book.book_name,
+def create_book(db: Session, book: models.book.PostBook):
+    db_book = BookDB(author_id=book.author_id, book_name=book.book_name,
                      rating=book.rating, description=book.description)
     db.add(db_book)
     db.commit()
@@ -38,13 +39,17 @@ def get_author(db: Session, author_id: int) -> AuthorDB:
 
 
 def get_all_authors(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(AuthorDB).offset(skip).limit(limit).all()
+    r = db.query(AuthorDB).offset(skip).limit(limit).all()
+    # for i in r:
+    #     print(i)
+    return r
 
 
-def create_author(db: Session, author: models.author.Author) -> models.author.AuthorDB:
+def create_author(db: Session, author: models.author.AuthorGetResponse) -> models.author.AuthorDB:
     db_author = AuthorDB(name=author.name, surname=author.surname,
                          age=author.age, language=author.language,
                          rating=author.rating)
+    print(db_author)
     db.add(db_author)
     db.commit()
     db.refresh(db_author)

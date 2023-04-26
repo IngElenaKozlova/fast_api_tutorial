@@ -1,21 +1,46 @@
 from pydantic import BaseModel
 from sqlalchemy import Column, Integer, String, Float
+from sqlalchemy.orm import relationship
 
 from database import Base
 
 
-class Author(BaseModel):
-    name: str
-    surname: str
-    age: int
-    language: str
+class BookWithoutID(BaseModel):
+    book_name: str
     rating: float
+    description: str
 
     class Config:
         orm_mode = True
 
 
-class PutAuthor(Author):
+class BaseAuthor(BaseModel):
+    age: int
+    name: str
+    surname: str
+    language: str
+    rating: float
+    class Config:
+        schema_extra = {
+            "example": {
+                "age": 24,
+                "name": "Nikolas",
+                "surname": "Flamel",
+                "language": "Eng",
+                "rating": 9.8
+            }
+        }
+
+
+class AuthorGetResponse(BaseAuthor):
+    id: int
+    books: list[BookWithoutID] = []
+
+    class Config:
+        orm_mode = True
+
+
+class PutAuthor(BaseAuthor):
     id: int
 
 
@@ -37,3 +62,8 @@ class AuthorDB(Base):
     age = Column(Integer)
     language = Column(String)
     rating = Column(Float, default=0.0)
+
+    books = relationship("BookDB", back_populates="author")
+
+    def __repr__(self):
+        return f"{self.id}, {self.books}"
